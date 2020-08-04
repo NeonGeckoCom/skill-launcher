@@ -1,0 +1,1 @@
+(go|navigate|browse) to (?P<website>.*)
