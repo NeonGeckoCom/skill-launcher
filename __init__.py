@@ -142,7 +142,8 @@ class LauncherSkill(MycroftSkill):
         #     self.check_for_signal("CORE_andCase")
 
     def stop(self):
-        pass
+        if self.gui_enabled:
+            self.gui.clear()
 
 
 def create_skill():
