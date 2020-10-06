@@ -35,14 +35,14 @@ class LauncherSkill(MycroftSkill):
         self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us', 'tech')
 
     def initialize(self):
-        launch_program_intent = IntentBuilder("launch_program_intent").require("LaunchKeyword"). \
-            require('program').optionally("Neon").build()
-        self.register_intent(launch_program_intent, self.launch_program_intent)
+        # launch_program_intent = IntentBuilder("launch_program_intent").require("LaunchKeyword"). \
+        #     require('program').optionally("Neon").build()
+        # self.register_intent(launch_program_intent, self.launch_program_intent)
         browse_website_intent = IntentBuilder("browse_website_intent").require("BrowseKeyword"). \
             require("website").optionally("Neon").build()
         self.register_intent(browse_website_intent, self.browse_website_intent)
-        # self.register_entity_file("program.entity")
-        # self.register_intent_file("launch.intent", self.launch_program_intent)
+        self.register_entity_file("program.entity")
+        self.register_intent_file("launch.intent", self.launch_program_intent)
 
     def launch_program_intent(self, message):
         if self.neon_in_request(message):
@@ -69,6 +69,8 @@ class LauncherSkill(MycroftSkill):
                 # program = "Text editor"
                 subprocess.Popen(["gedit"],
                                  stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                self.browse_website_intent(message)
             self.speak_dialog('LaunchProgram', {'program': program})
             # else:
             #     self.speak_dialog('NotFound', {'program': program})
