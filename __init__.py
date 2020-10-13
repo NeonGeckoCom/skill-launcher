@@ -35,41 +35,48 @@ class LauncherSkill(MycroftSkill):
         self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us', 'tech')
 
     def initialize(self):
-        launch_program_intent = IntentBuilder("launch_program_intent").require("LaunchKeyword"). \
-            require('program').optionally("Neon").build()
-        self.register_intent(launch_program_intent, self.launch_program_intent)
+        # launch_program_intent = IntentBuilder("launch_program_intent").require("LaunchKeyword"). \
+        #     require('program').optionally("Neon").build()
+        # self.register_intent(launch_program_intent, self.launch_program_intent)
         browse_website_intent = IntentBuilder("browse_website_intent").require("BrowseKeyword"). \
             require("website").optionally("Neon").build()
         self.register_intent(browse_website_intent, self.browse_website_intent)
-        # self.register_entity_file("program.entity")
-        # self.register_intent_file("launch.intent", self.launch_program_intent)
+        self.register_entity_file("program.entity")
+        self.register_intent_file("launch.intent", self.launch_program_intent)
 
     def launch_program_intent(self, message):
         if self.neon_in_request(message):
-            LOG.debug(message.data)
-            program = message.data.get('program')
-            LOG.debug(program)
+            if message.context.get("mobile"):
+                self.speak_dialog("MobileNotSupported", private=True)
+            elif self.server:
+                pass
+            else:
+                LOG.debug(message.data)
+                program = message.data.get('program')
+                LOG.debug(program)
 
-            if program in self.chromium_opts:
-                # self.speak("Launching Chrome.")
-                # program = "Chrome"
-                subprocess.Popen(["chromium-browser", "https://neongecko.com/"],
-                                 stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            elif program in self.nautilus_opts:
-                # self.speak("Launching File Explorer.")
-                # program = "File Explorer"
-                subprocess.Popen(["nautilus"],
-                                 stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            elif program in self.terminal_opts:
-                # self.speak("Launching Terminal.")
-                # program = "Terminal"
-                subprocess.Popen(["gnome-terminal"],
-                                 stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            elif program in self.textedit_opts:
-                # program = "Text editor"
-                subprocess.Popen(["gedit"],
-                                 stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-            self.speak_dialog('LaunchProgram', {'program': program})
+                if program in self.chromium_opts:
+                    # self.speak("Launching Chrome.")
+                    # program = "Chrome"
+                    subprocess.Popen(["chromium-browser", "https://neongecko.com/"],
+                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+                elif program in self.nautilus_opts:
+                    # self.speak("Launching File Explorer.")
+                    # program = "File Explorer"
+                    subprocess.Popen(["nautilus"],
+                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+                elif program in self.terminal_opts:
+                    # self.speak("Launching Terminal.")
+                    # program = "Terminal"
+                    subprocess.Popen(["gnome-terminal"],
+                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+                elif program in self.textedit_opts:
+                    # program = "Text editor"
+                    subprocess.Popen(["gedit"],
+                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+                else:
+                    self.browse_website_intent(message)
+                self.speak_dialog('LaunchProgram', {'program': program})
             # else:
             #     self.speak_dialog('NotFound', {'program': program})
             #     if program:

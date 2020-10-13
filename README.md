@@ -1,4 +1,4 @@
-# ![](https://0000.us/klatchat/app/files/neon_images/icons/neon_paw.png)launcher
+# ![](https://0000.us/klatchat/app/files/neon_images/icons/neon_paw.png)Launcher
 
 # Summary
 
@@ -17,6 +17,9 @@ This example skill is used to launch desktop applications.
 Ask Neon to launch a program:
 
 - "launch chrome"
+
+Ask Neon to navigate to a website:
+- "navigate to google.com"
 
 # Location
 
