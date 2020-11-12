@@ -31,7 +31,7 @@ class LauncherSkill(MycroftSkill):
         self.chromium_opts = ['chrome', 'chromium', 'browser']
         self.nautilus_opts = ['nautilus', 'files', 'file explorer']
         self.terminal_opts = ['terminal', 'gnome terminal', 'command line']
-        self.textedit_opts = ['gedit', 'g edit', 'text edit', 'text editor', 'notepad']
+        self.textedit_opts = ['gedit', 'g edit', 'text edit', 'text editor', 'notepad', 'textedit']
         self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us', 'tech')
 
     def initialize(self):
