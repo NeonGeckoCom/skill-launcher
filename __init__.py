@@ -1,6 +1,6 @@
 # NEON AI (TM) SOFTWARE, Software Development Kit & Application Development System
 #
-# Copyright 2008-2020 Neongecko.com Inc. | All Rights Reserved
+# Copyright 2008-2021 Neongecko.com Inc. | All Rights Reserved
 #
 # Notice of License - Duplicating this Notice of License near the start of any file containing
 # a derivative of this software is a condition of license for this software.
@@ -14,7 +14,7 @@
 # Authors: Guy Daniels, Daniel McKnight, Regina Bloomstine, Elon Gasper, Richard Leeds
 #
 # Specialized conversational reconveyance options from Conversation Processing Intelligence Corp.
-# US Patents 2008-2020: US7424516, US20140161250, US20140177813, US8638908, US8068604, US8553852, US10530923, US10530924
+# US Patents 2008-2021: US7424516, US20140161250, US20140177813, US8638908, US8068604, US8553852, US10530923, US10530924
 # China Patent: CN102017585  -  Europe Patent: EU2156652  -  Patents Pending
 
 import difflib
@@ -23,11 +23,15 @@ import subprocess
 from mycroft.skills.core import MycroftSkill
 from mycroft.util.log import LOG
 from adapt.intent import IntentBuilder
+from neon_utils import stub_missing_parameters, skill_needs_patching
 
 
 class LauncherSkill(MycroftSkill):
     def __init__(self):
         super(LauncherSkill, self).__init__(name="LauncherSkill")
+        if skill_needs_patching(self):
+            LOG.warning("Patching Neon skill for non-neon core")
+            stub_missing_parameters(self)
         self.chromium_opts = ['chrome', 'chromium', 'browser']
         self.nautilus_opts = ['nautilus', 'files', 'file explorer']
         self.terminal_opts = ['terminal', 'gnome terminal', 'command line']
@@ -58,6 +62,7 @@ class LauncherSkill(MycroftSkill):
                 if program in self.chromium_opts:
                     # self.speak("Launching Chrome.")
                     # program = "Chrome"
+                    # TODO: Check for app, try Google Chrome?
                     subprocess.Popen(["chromium-browser", "https://neongecko.com/"],
                                      stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
                 elif program in self.nautilus_opts:
@@ -85,7 +90,8 @@ class LauncherSkill(MycroftSkill):
             #         self.speak("I don't know that program")
 
     def browse_website_intent(self, message):
-        from NGI.utilities.utilHelper import scrape_page_for_links as scrape
+        # from NGI.utilities.utilHelper import scrape_page_for_links as scrape
+        from neon_utils.web_utils import scrape_page_for_links as scrape
         LOG.debug(message.data)
         # website = message.data.get('website')
         if self.neon_in_request(message):
@@ -133,7 +139,7 @@ class LauncherSkill(MycroftSkill):
                         website = links[close_matches[0]]
                 # TODO: Conditionally speak site name? DM
                 self.speak_dialog("LaunchWebsite", {"website": website}, private=True)
-                if message.context["mobile"]:
+                if message.context.get("mobile"):
                     self.socket_io_emit('web_browser', f"&link={website}", message.context["flac_filename"])
                 elif self.server:
                     self.socket_io_emit(event="navigate to page", message=website,
@@ -143,6 +149,7 @@ class LauncherSkill(MycroftSkill):
                     self.gui.show_url(website)
                 else:
                     LOG.info(website)
+                    # TODO: Other browser support DM
                     subprocess.Popen(["chromium-browser", website],
                                      stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         # else:
