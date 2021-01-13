@@ -1,31 +1,27 @@
-# ![](https://0000.us/klatchat/app/files/neon_images/icons/neon_paw.png)Launcher
+# <img src='./logo.svg' card_color="#FF8600" width="50" style="vertical-align:bottom" style="vertical-align:bottom">Launcher
 
-# Summary
+Skill used to launch programs and navigate websites
 
-Skill used to launch programs in Ubuntu
+## Requirements
 
-# Requirements
+`neon-utils`
 
-No special required packages for this skill.
+## Description
 
-# Description
+This example skill is used to launch desktop applications and browse web pages.
 
-This example skill is used to launch desktop applications.
+## Examples
 
-# How to Use
+- "Browse to neon.ai"
+- "Navigate to google.com"
+- "Open notepad."
+- "Launch terminal."
 
-Ask Neon to launch a program:
-
-- "launch chrome"
-
-Ask Neon to navigate to a website:
-- "navigate to google.com"
-
-# Location
+## Location
 
     ${skills}/launcher.neon
 
-# Files
+## Files
 
     launcher.neon/vocab
     launcher.neon/vocab/en-us
@@ -43,11 +39,11 @@ Ask Neon to navigate to a website:
     launcher.neon/dialog/en-us/NotFound.dialog
   
 
-# Class Diagram
+## Class Diagram
 
 [Click here](https://0000.us/klatchat/app/files/neon_images/class_diagrams/personal.png)
 
-# Available Intents
+## Available Intents
 <details>
 <summary>Click to expand.</summary>
 <br>
@@ -75,7 +71,7 @@ Ask Neon to navigate to a website:
 
 </details>
 
-# Examples
+## Details
 
 ### Text
 
@@ -88,11 +84,22 @@ Ask Neon to navigate to a website:
 
   
 
-# Contact Support
+## Contact Support
 
 Use the [link](https://neongecko.com/ContactUs) or [submit an issue on GitHub](https://help.github.com/en/articles/creating-an-issue)
 
-# Credits
+## Credits
+@NeonGeckoCom
+@NeonDaniel
+@reginaneon
 
-reginaneon [neongeckocom](https://neongecko.com/) Mycroft AI
+## Category
+**Productivity**
+Daily
 
+## Tags
+#NeonGecko
+#NeonAI
+#browser
+#desktop
+#web
