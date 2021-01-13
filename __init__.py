@@ -20,6 +20,8 @@
 import difflib
 import re
 import subprocess
+import webbrowser
+
 from mycroft.skills.core import MycroftSkill
 from mycroft.util.log import LOG
 from adapt.intent import IntentBuilder
@@ -107,16 +109,16 @@ class LauncherSkill(MycroftSkill):
 
             # This either has no specified tld or had the '.' parsed out by stt
             if '.' not in website:
-                if len(website.split()) == 1:
+                if len(website.split()) == 1:  # No possible TLD to parse, assume .com
                     website = f"{website}.com"
-                elif len(website.split()) == 2 and website.split()[1] in self.valid_domains:
+                elif len(website.split()) == 2 and website.split()[1] in self.valid_domains:  # Try to match valid TLD
                     website = re.sub("\.\.", ".", ".".join(website.split()))
                 else:
                     LOG.warning(f"Complicated website: {website}")
                     parts = website.split()
-                    if parts[len(parts) - 1] in self.valid_domains:
+                    if parts[len(parts) - 1] in self.valid_domains:  # Assume last "word" is the TLD
                         website = f'{"".join(parts[0:(len(parts) - 1)])}.{parts[len(parts) - 1]}'
-                    else:
+                    else:  # No possible TLD to parse, assume .com
                         website = f'{"".join(parts)}.com'
             else:
                 website = "".join(website.split()).strip('"')
@@ -127,7 +129,7 @@ class LauncherSkill(MycroftSkill):
             # If we know this web address is valid
             if links == "Invalid Domain":
                 self.speak_dialog("WebsiteNotFound", {"website": website}, private=True)
-            # Tell user website not found (TODO: call search intent? try different subdomain? DM)
+                # Tell user website not found (TODO: call search intent? try different subdomain? DM)
             else:
                 if page and page in links.keys():
                     website = links[page]
@@ -149,9 +151,12 @@ class LauncherSkill(MycroftSkill):
                     self.gui.show_url(website)
                 else:
                     LOG.info(website)
-                    # TODO: Other browser support DM
-                    subprocess.Popen(["chromium-browser", website],
-                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+                    if not website.startswith("http"):
+                        # TODO: use neon_utils here DM
+                        website = f"https://{website}"
+                    webbrowser.open_new(website)
+                    # subprocess.Popen(["chromium-browser", website],
+                    #                  stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
         # else:
         #     self.check_for_signal("CORE_andCase")
 
