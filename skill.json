@@ -6,13 +6,20 @@
     "description": "This example skill is used to launch desktop applications and browse web pages.",
     "examples": [
         "browse to neon.ai",
-        "navigate to google.com",
-        "open notepad.",
+        "avigate to google.com",
+        "pen notepad.",
         "launch terminal."
     ],
     "desktopFile": false,
     "warning": "",
     "systemDeps": false,
+    "requirements": {
+        "python": [
+            "git+https://github.com/neongeckocom/neon-skill-utils"
+        ],
+        "system": {},
+        "skill": []
+    },
     "platforms": [
         "i386",
         "x86_64",
@@ -36,6 +43,7 @@
         "web"
     ],
     "skillname": "Launcher",
-    "authorname": "NeonGeckoCom",
-    "foldername": "launcher.neon"
+    "authorname": "Neon",
+    "foldername": "launcher.neon",
+    "download_url": "https://api.github.com/repos/NeonGeckoCom/launcher.neon/zipball/master"
 }
