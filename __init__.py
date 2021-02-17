@@ -141,8 +141,9 @@ class LauncherSkill(MycroftSkill):
                         website = links[close_matches[0]]
                 # TODO: Conditionally speak site name? DM
                 self.speak_dialog("LaunchWebsite", {"website": website}, private=True)
-                if message.context.get("mobile"):
-                    self.socket_io_emit('web_browser', f"&link={website}", message.context["flac_filename"])
+                if self.request_from_mobile(message):
+                    self.mobile_skill_intent("web_browser", {"link": website}, message)
+                    # self.socket_io_emit('web_browser', f"&link={website}", message.context["flac_filename"])
                 elif self.server:
                     self.socket_io_emit(event="navigate to page", message=website,
                                         flac_filename=message.context["flac_filename"])
