@@ -22,18 +22,18 @@ import re
 import subprocess
 import webbrowser
 
-from mycroft.skills.core import MycroftSkill
-from mycroft.util.log import LOG
+# from mycroft.skills.core import MycroftSkill
+# from mycroft.util.log import LOG
 from adapt.intent import IntentBuilder
-from neon_utils import stub_missing_parameters, skill_needs_patching
+from neon_utils.skills.neon_skill import NeonSkill, LOG
 
 
-class LauncherSkill(MycroftSkill):
+class LauncherSkill(NeonSkill):
     def __init__(self):
         super(LauncherSkill, self).__init__(name="LauncherSkill")
-        if skill_needs_patching(self):
-            LOG.warning("Patching Neon skill for non-neon core")
-            stub_missing_parameters(self)
+        # if skill_needs_patching(self):
+        #     LOG.warning("Patching Neon skill for non-neon core")
+        #     stub_missing_parameters(self)
         self.chromium_opts = ['chrome', 'chromium', 'browser']
         self.nautilus_opts = ['nautilus', 'files', 'file explorer']
         self.terminal_opts = ['terminal', 'gnome terminal', 'command line']
