@@ -149,7 +149,9 @@ class LauncherSkill(NeonSkill):
                     # self.socket_io_emit(event="navigate to page", message=website,
                     #                     flac_filename=message.context["flac_filename"])
                 elif self.gui_enabled:
-                    # TODO: Better parsing here DM
+                    if not website.startswith("http"):
+                        # TODO: use neon_utils here DM
+                        website = f"https://{website}"
                     self.gui.show_url(website)
                 else:
                     LOG.info(website)
