@@ -26,6 +26,7 @@ import webbrowser
 # from mycroft.util.log import LOG
 from adapt.intent import IntentBuilder
 from neon_utils.skills.neon_skill import NeonSkill, LOG
+from ovos_utils.gui import is_gui_installed
 
 
 class LauncherSkill(NeonSkill):
@@ -148,7 +149,7 @@ class LauncherSkill(NeonSkill):
                     self.socket_emit_to_server("navigate to page", [website, message.context["klat_data"]["request_id"]])
                     # self.socket_io_emit(event="navigate to page", message=website,
                     #                     flac_filename=message.context["flac_filename"])
-                elif self.gui_enabled:
+                elif self.gui_enabled or is_gui_installed():
                     if not website.startswith("http"):
                         # TODO: use neon_utils here DM
                         website = f"https://{website}"
