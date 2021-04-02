@@ -121,6 +121,12 @@ class LauncherSkill(NeonSkill):
                         website = f'{"".join(parts[0:(len(parts) - 1)])}.{parts[len(parts) - 1]}'
                     else:  # No possible TLD to parse, assume .com
                         website = f'{"".join(parts)}.com'
+            elif not website.rsplit('.', 1)[1]:
+                # TODO: Better parsing here DM
+                if website.replace(" ", "") == "neon":
+                    website = "https://neon.ai"
+                else:
+                    website = f"{website.replace(' ', '')}com"
             else:
                 website = "".join(website.split()).strip('"')
             LOG.debug(f"Check website: {website}")
