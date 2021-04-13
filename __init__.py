@@ -25,6 +25,7 @@ import webbrowser
 # from mycroft.skills.core import MycroftSkill
 # from mycroft.util.log import LOG
 from adapt.intent import IntentBuilder
+from neon_utils.message_utils import request_from_mobile
 from neon_utils.skills.neon_skill import NeonSkill, LOG
 from ovos_utils.gui import is_gui_installed
 
@@ -148,7 +149,7 @@ class LauncherSkill(NeonSkill):
                         website = links[close_matches[0]]
                 # TODO: Conditionally speak site name? DM
                 self.speak_dialog("LaunchWebsite", {"website": website}, private=True)
-                if self.request_from_mobile(message):
+                if request_from_mobile(message):
                     self.mobile_skill_intent("web_browser", {"link": website}, message)
                     # self.socket_io_emit('web_browser', f"&link={website}", message.context["flac_filename"])
                 elif self.server:
