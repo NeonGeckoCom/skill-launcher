@@ -22,18 +22,20 @@ import re
 import subprocess
 import webbrowser
 
-from mycroft.skills.core import MycroftSkill
-from mycroft.util.log import LOG
+# from mycroft.skills.core import MycroftSkill
+# from mycroft.util.log import LOG
 from adapt.intent import IntentBuilder
-from neon_utils import stub_missing_parameters, skill_needs_patching
+from neon_utils.message_utils import request_from_mobile
+from neon_utils.skills.neon_skill import NeonSkill, LOG
+from ovos_utils.gui import is_gui_installed
 
 
-class LauncherSkill(MycroftSkill):
+class LauncherSkill(NeonSkill):
     def __init__(self):
         super(LauncherSkill, self).__init__(name="LauncherSkill")
-        if skill_needs_patching(self):
-            LOG.warning("Patching Neon skill for non-neon core")
-            stub_missing_parameters(self)
+        # if skill_needs_patching(self):
+        #     LOG.warning("Patching Neon skill for non-neon core")
+        #     stub_missing_parameters(self)
         self.chromium_opts = ['chrome', 'chromium', 'browser']
         self.nautilus_opts = ['nautilus', 'files', 'file explorer']
         self.terminal_opts = ['terminal', 'gnome terminal', 'command line']
@@ -120,6 +122,12 @@ class LauncherSkill(MycroftSkill):
                         website = f'{"".join(parts[0:(len(parts) - 1)])}.{parts[len(parts) - 1]}'
                     else:  # No possible TLD to parse, assume .com
                         website = f'{"".join(parts)}.com'
+            elif not website.rsplit('.', 1)[1]:
+                # TODO: Better parsing here DM
+                if website.replace(" ", "") == "neon":
+                    website = "https://neon.ai"
+                else:
+                    website = f"{website.replace(' ', '')}com"
             else:
                 website = "".join(website.split()).strip('"')
             LOG.debug(f"Check website: {website}")
@@ -141,15 +149,17 @@ class LauncherSkill(MycroftSkill):
                         website = links[close_matches[0]]
                 # TODO: Conditionally speak site name? DM
                 self.speak_dialog("LaunchWebsite", {"website": website}, private=True)
-                if self.request_from_mobile(message):
+                if request_from_mobile(message):
                     self.mobile_skill_intent("web_browser", {"link": website}, message)
                     # self.socket_io_emit('web_browser', f"&link={website}", message.context["flac_filename"])
                 elif self.server:
                     self.socket_emit_to_server("navigate to page", [website, message.context["klat_data"]["request_id"]])
                     # self.socket_io_emit(event="navigate to page", message=website,
                     #                     flac_filename=message.context["flac_filename"])
-                elif self.gui_enabled:
-                    # TODO: Better parsing here DM
+                elif self.gui_enabled or is_gui_installed():
+                    if not website.startswith("http"):
+                        # TODO: use neon_utils here DM
+                        website = f"https://{website}"
                     self.gui.show_url(website)
                 else:
                     LOG.info(website)
