@@ -28,7 +28,7 @@
         "arm64",
         "arm"
     ],
-    "branch": "master",
+    "branch": "dev",
     "license": "NeonAI License v1.0",
     "icon": "logo.svg",
     "category": "Productivity",
@@ -45,5 +45,5 @@
     ],
     "skillname": "Launcher",
     "authorname": "Neon",
-    "foldername": "launcher.neon"
+    "foldername": null
 }
