@@ -89,9 +89,9 @@ This example skill is used to launch desktop applications and browse web pages.
 Use the [link](https://neongecko.com/ContactUs) or [submit an issue on GitHub](https://help.github.com/en/articles/creating-an-issue)
 
 ## Credits
-@NeonGeckoCom
-@NeonDaniel
-@reginaneon
+[NeonGeckoCom](https://github.com/NeonGeckoCom)
+[NeonDaniel](https://github.com/NeonDaniel)
+[reginaneon](https://github.com/reginaneon)
 
 ## Category
 **Productivity**
