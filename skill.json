@@ -13,7 +13,13 @@
     "desktopFile": false,
     "warning": "",
     "systemDeps": false,
-    "requirements": "`neon-utils`",
+    "requirements": {
+        "python": [
+            "neon-utils>=0.5.7"
+        ],
+        "system": {},
+        "skill": []
+    },
     "incompatible_skills": [],
     "platforms": [
         "i386",
@@ -44,9 +50,5 @@
     ],
     "skillname": "skill-launcher",
     "authorname": "NeonGeckoCom",
-    "foldername": null,
-    "location": "    ${skills}/launcher.neon",
-    "files": "    launcher.neon/vocab     launcher.neon/vocab/en-us     launcher.neon/vocab/en-us/program.entity     launcher.neon/vocab/en-us/launch.intent     launcher.neon/README.md     launcher.neon/regex     launcher.neon/regex/en-us     launcher.neon/regex/en-us/Program.rx     launcher.neon/__init__.py     launcher.neon/LauncherSkill.yml     launcher.neon/dialog     launcher.neon/dialog/en-us     launcher.neon/dialog/en-us/LaunchProgram.dialog     launcher.neon/dialog/en-us/NotFound.dialog",
-    "class diagram": "[Click here](https://0000.us/klatchat/app/files/neon_images/class_diagrams/personal.png)",
-    "available intents": "<details> <summary>Click to expand.</summary> <br> ### launch.intent     (launch|lunch|open) {program} ### program.entity     chrome     chromium     browser     nautilus     files     file explorer     terminal     gnome terminal     command line     gedit     g edit     text edit     text editor     notepad </details>"
+    "foldername": null
 }
