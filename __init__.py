@@ -31,9 +31,8 @@ import re
 import subprocess
 import webbrowser
 
-# from mycroft.skills.core import MycroftSkill
-# from mycroft.util.log import LOG
 from adapt.intent import IntentBuilder
+from mycroft_bus_client import Message
 from neon_utils.message_utils import request_from_mobile
 from neon_utils.skills.neon_skill import NeonSkill, LOG
 from ovos_utils.gui import is_gui_installed
@@ -42,9 +41,6 @@ from ovos_utils.gui import is_gui_installed
 class LauncherSkill(NeonSkill):
     def __init__(self):
         super(LauncherSkill, self).__init__(name="LauncherSkill")
-        # if skill_needs_patching(self):
-        #     LOG.warning("Patching Neon skill for non-neon core")
-        #     stub_missing_parameters(self)
         self.chromium_opts = ['chrome', 'chromium', 'browser']
         self.nautilus_opts = ['nautilus', 'files', 'file explorer']
         self.terminal_opts = ['terminal', 'gnome terminal', 'command line']
@@ -52,9 +48,6 @@ class LauncherSkill(NeonSkill):
         self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us', 'tech')
 
     def initialize(self):
-        # launch_program_intent = IntentBuilder("launch_program_intent").require("LaunchKeyword"). \
-        #     require('program').optionally("Neon").build()
-        # self.register_intent(launch_program_intent, self.launch_program_intent)
         browse_website_intent = IntentBuilder("browse_website_intent").require("BrowseKeyword"). \
             require("website").optionally("Neon").build()
         self.register_intent(browse_website_intent, self.browse_website_intent)
@@ -65,7 +58,7 @@ class LauncherSkill(NeonSkill):
         if self.neon_in_request(message):
             if message.context.get("mobile"):
                 self.speak_dialog("MobileNotSupported", private=True)
-            elif self.server:
+            elif message.context.get('klat_data'):
                 pass
             else:
                 LOG.debug(message.data)
@@ -159,12 +152,16 @@ class LauncherSkill(NeonSkill):
                 # TODO: Conditionally speak site name? DM
                 self.speak_dialog("LaunchWebsite", {"website": website}, private=True)
                 if request_from_mobile(message):
-                    self.mobile_skill_intent("web_browser", {"link": website}, message)
+                    pass
+                    # TODO
+                    # self.mobile_skill_intent("web_browser", {"link": website}, message)
                     # self.socket_io_emit('web_browser', f"&link={website}", message.context["flac_filename"])
-                elif self.server:
-                    self.socket_emit_to_server("navigate to page", [website, message.context["klat_data"]["request_id"]])
-                    # self.socket_io_emit(event="navigate to page", message=website,
-                    #                     flac_filename=message.context["flac_filename"])
+                elif message.data.get('klat_data'):
+                    # TODO
+                    self.bus.emit(Message('css.emit',
+                                          {"event": "navigate to page",
+                                           "data": [website, message.context[
+                                               "klat_data"]["request_id"]]}))
                 elif self.gui_enabled or is_gui_installed():
                     if not website.startswith("http"):
                         # TODO: use neon_utils here DM
@@ -176,10 +173,6 @@ class LauncherSkill(NeonSkill):
                         # TODO: use neon_utils here DM
                         website = f"https://{website}"
                     webbrowser.open_new(website)
-                    # subprocess.Popen(["chromium-browser", website],
-                    #                  stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        # else:
-        #     self.check_for_signal("CORE_andCase")
 
     def stop(self):
         if self.gui_enabled:
