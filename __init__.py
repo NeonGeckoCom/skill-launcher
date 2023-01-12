@@ -28,151 +28,169 @@
 
 import difflib
 import re
-import subprocess
 import webbrowser
+from typing import Optional
 
+import requests
 from adapt.intent import IntentBuilder
 from mycroft_bus_client import Message
-from neon_utils.message_utils import request_from_mobile
-from neon_utils.skills.neon_skill import NeonSkill, LOG
+from ovos_utils.log import LOG
 from ovos_utils.gui import is_gui_installed
+from neon_utils.message_utils import request_from_mobile
+from neon_utils.skills.neon_skill import NeonSkill
+from neon_utils.web_utils import scrape_page_for_links as scrape
+
+from mycroft.skills import intent_handler, intent_file_handler
 
 
 class LauncherSkill(NeonSkill):
     def __init__(self):
         super(LauncherSkill, self).__init__(name="LauncherSkill")
-        self.chromium_opts = ['chrome', 'chromium', 'browser']
-        self.nautilus_opts = ['nautilus', 'files', 'file explorer']
-        self.terminal_opts = ['terminal', 'gnome terminal', 'command line']
-        self.textedit_opts = ['gedit', 'g edit', 'text edit', 'text editor', 'notepad', 'textedit']
-        self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us', 'tech')
+        self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us',
+                              'tech')
 
-    def initialize(self):
-        browse_website_intent = IntentBuilder("browse_website_intent").require("BrowseKeyword"). \
-            require("website").optionally("Neon").build()
-        self.register_intent(browse_website_intent, self.browse_website_intent)
-        self.register_entity_file("program.entity")
-        self.register_intent_file("launch.intent", self.launch_program_intent)
+    @intent_file_handler("launch_program.intent")
+    def handle_launch_program(self, message):
+        """
+        Handle a request to launch a specific program
+        """
+        if not self.neon_in_request(message):
+            return
+        if message.context.get("mobile"):
+            self.speak_dialog("mobile_not_supported", private=True)
+        elif message.context.get('klat_data'):
+            pass
+        else:
+            LOG.debug(message.data)
+            program = message.data.get('program')
+            LOG.debug(program)
+            self.speak_dialog("not_supported", private=True)
 
-    def launch_program_intent(self, message):
-        if self.neon_in_request(message):
-            if message.context.get("mobile"):
-                self.speak_dialog("MobileNotSupported", private=True)
-            elif message.context.get('klat_data'):
-                pass
-            else:
-                LOG.debug(message.data)
-                program = message.data.get('program')
-                LOG.debug(program)
-
-                if program in self.chromium_opts:
-                    # self.speak("Launching Chrome.")
-                    # program = "Chrome"
-                    # TODO: Check for app, try Google Chrome?
-                    subprocess.Popen(["chromium-browser", "https://neongecko.com/"],
-                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-                elif program in self.nautilus_opts:
-                    # self.speak("Launching File Explorer.")
-                    # program = "File Explorer"
-                    subprocess.Popen(["nautilus"],
-                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-                elif program in self.terminal_opts:
-                    # self.speak("Launching Terminal.")
-                    # program = "Terminal"
-                    subprocess.Popen(["gnome-terminal"],
-                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-                elif program in self.textedit_opts:
-                    # program = "Text editor"
-                    subprocess.Popen(["gedit"],
-                                     stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-                else:
-                    self.browse_website_intent(message)
-                self.speak_dialog('LaunchProgram', {'program': program})
-            # else:
-            #     self.speak_dialog('NotFound', {'program': program})
-            #     if program:
-            #         self.speak_dialog('LaunchProgram', {'program': program})
-            #     else:
-            #         self.speak("I don't know that program")
-
-    def browse_website_intent(self, message):
-        # from NGI.utilities.utilHelper import scrape_page_for_links as scrape
-        from neon_utils.web_utils import scrape_page_for_links as scrape
+    @intent_handler(IntentBuilder("BrowseWebsiteIntent")
+                    .require("browse").require("website").build())
+    def handle_browse_website(self, message):
         LOG.debug(message.data)
-        # website = message.data.get('website')
-        if self.neon_in_request(message):
-            website = message.data.get('utterance').split(" to ", 1)[1]
-            LOG.debug(website)
+        if not self.neon_in_request(message):
+            return
 
-            # Catch request for page on website
-            if " on " in website:
-                page, website = website.split(" on ")
-            else:
-                page = None
-            LOG.debug(len(website.split()))
+        website = message.data.get('website')
+        LOG.debug(website)
 
-            # This either has no specified tld or had the '.' parsed out by stt
-            if '.' not in website:
-                if len(website.split()) == 1:  # No possible TLD to parse, assume .com
-                    website = f"{website}.com"
-                elif len(website.split()) == 2 and website.split()[1] in self.valid_domains:  # Try to match valid TLD
-                    website = re.sub("\.\.", ".", ".".join(website.split()))
-                else:
-                    LOG.warning(f"Complicated website: {website}")
-                    parts = website.split()
-                    if parts[len(parts) - 1] in self.valid_domains:  # Assume last "word" is the TLD
-                        website = f'{"".join(parts[0:(len(parts) - 1)])}.{parts[len(parts) - 1]}'
-                    else:  # No possible TLD to parse, assume .com
-                        website = f'{"".join(parts)}.com'
-            elif not website.rsplit('.', 1)[1]:
-                # TODO: Better parsing here DM
-                if website.replace(" ", "") == "neon":
-                    website = "https://neon.ai"
-                else:
-                    website = f"{website.replace(' ', '')}com"
-            else:
-                website = "".join(website.split()).strip('"')
-            LOG.debug(f"Check website: {website}")
-            links = scrape(website)
-            LOG.debug(f"found links: {links}")
+        # Catch request for page on website
+        page, website = self._parse_page_in_request(website)
 
-            # If we know this web address is valid
-            if links == "Invalid Domain":
-                self.speak_dialog("WebsiteNotFound", {"website": website}, private=True)
-                # Tell user website not found (TODO: call search intent? try different subdomain? DM)
+        website = self._parse_url_from_website(website)
+        LOG.debug(f"Check website: {website}")
+
+        url = self._validate_url(website)
+        if not url:
+            self.speak_dialog("website_not_found", {"website": website},
+                              private=True)
+            # TODO: call search intent? try different subdomain? DM
+            return
+
+        links = scrape(website)
+        LOG.debug(f"found links: {links}")
+
+        if page and page in links.keys():
+            website = links[page]
+            LOG.debug(f"Found requested page: {website}")
+        elif page:
+            LOG.debug(f"Looking for {page} on {website}")
+            close_matches = difflib.get_close_matches(page,
+                                                      links.keys(), cutoff=0.5)
+            if close_matches:
+                LOG.debug(close_matches)
+                website = links[close_matches[0]]
+                LOG.debug(f"Found requested page: {website}")
+
+        # TODO: Conditionally speak site name? DM
+        self.speak_dialog("launch_website", {"website": website}, private=True)
+        if request_from_mobile(message):
+            pass
+            # TODO
+        elif message.data.get('klat_data'):
+            self.bus.emit(Message('css.emit',
+                                  {"event": "navigate to page",
+                                   "data": [website, message.context[
+                                       "klat_data"]["request_id"]]}))
+        elif self.gui_enabled or is_gui_installed():
+            self.gui.show_url(website)
+        else:
+            webbrowser.open_new(website)
+
+    def _parse_page_in_request(self, website: str) -> (Optional[str], str):
+        """
+        Split a requested page from a website request.
+        :param website: Parsed website request from user
+        :returns: Optionally parsed page, requested website
+        """
+        website_parts = website.split()
+        if len(website_parts) == 1:
+            return None, website
+        on_word = self.translate('on')
+        if on_word in website_parts:
+            on_idx = website_parts.index(on_word)
+            page = " ".join(website_parts[:on_idx])
+            website = " ".join(website_parts[on_idx + 1:])
+            LOG.debug(f"{page} | {website}")
+            return page, website
+        return None, website
+
+    def _parse_url_from_website(self, website: str) -> str:
+        """
+        Parse a spoken website request into a navigable string
+        :param website: Parsed website request from user (with no pages)
+        """
+        dot = self.translate('dot')
+        if dot in website.split():
+            website = " ".join([p if p != dot else '.'
+                                for p in website.split()])
+
+        if '.' in website:
+            LOG.debug(f"Returning: {website}")
+            return website.replace(' ', '')
+
+        if len(website.split()) == 1:
+            LOG.warning(f"No TLD in one-word website: {website}")
+            if website == "neon":
+                return "neon.ai"
             else:
-                if page and page in links.keys():
-                    website = links[page]
-                elif page:
-                    LOG.debug(f"DM: Looking for {page} on {website}")
-                    close_matches = difflib.get_close_matches(page, links.keys(), cutoff=0.5)
-                    LOG.debug(close_matches)
-                    if close_matches:
-                        website = links[close_matches[0]]
-                # TODO: Conditionally speak site name? DM
-                self.speak_dialog("LaunchWebsite", {"website": website}, private=True)
-                if request_from_mobile(message):
-                    pass
-                    # TODO
-                    # self.mobile_skill_intent("web_browser", {"link": website}, message)
-                    # self.socket_io_emit('web_browser', f"&link={website}", message.context["flac_filename"])
-                elif message.data.get('klat_data'):
-                    # TODO
-                    self.bus.emit(Message('css.emit',
-                                          {"event": "navigate to page",
-                                           "data": [website, message.context[
-                                               "klat_data"]["request_id"]]}))
-                elif self.gui_enabled or is_gui_installed():
-                    if not website.startswith("http"):
-                        # TODO: use neon_utils here DM
-                        website = f"https://{website}"
-                    self.gui.show_url(website)
-                else:
-                    LOG.info(website)
-                    if not website.startswith("http"):
-                        # TODO: use neon_utils here DM
-                        website = f"https://{website}"
-                    webbrowser.open_new(website)
+                LOG.debug(f"Assuming .com")
+                return f"{website}.com"
+
+        parts = website.split()
+        if parts[-1] in self.valid_domains:
+            website = "".join(parts[:-1]) + f'.{parts[-1]}'
+            LOG.debug(f"Returning {website}")
+            return website
+
+        LOG.warning(f"Assuming .com")
+        return f"{website.replace(' ', '')}.com"
+
+    @staticmethod
+    def _validate_url(url: str) -> Optional[str]:
+        """
+        Ensure a parsed URL is valid and return validated URL with schema.
+        :param url: string URL to validate
+        :returns: validated URL with schema or None
+        """
+        try:
+            if url.startswith("http"):
+                test = requests.get(url)
+                if test.ok:
+                    return url
+            https_url = f'https://{url}'
+            test = requests.get(https_url)
+            if test.ok:
+                return https_url
+            http_url = f'http://{url}'
+            test = requests.get(http_url)
+            if test.ok:
+                return http_url
+        except Exception as e:
+            LOG.error(e)
+        LOG.error(f"Could not resolve a valid URL: {url}")
 
     def stop(self):
         if self.gui_enabled:

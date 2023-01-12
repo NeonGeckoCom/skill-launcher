@@ -1,17 +1,15 @@
 # <img src='./logo.svg' card_color="#FF8600" width="50" style="vertical-align:bottom" style="vertical-align:bottom">Launcher
 
-Skill used to launch programs and navigate websites
+Browse the web by voice
 
 ## Description
 
-This example skill is used to launch desktop applications and browse web pages.
+This skill is used to browse the web.
 
 ## Examples
 
 - "Browse to neon.ai"
 - "Navigate to google.com"
-- "Open notepad."
-- "Launch terminal."
 
 ## Contact Support
 
