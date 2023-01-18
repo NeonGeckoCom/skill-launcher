@@ -1,1 +1,0 @@
-(launch|lunch|open) (?P<program>.*)
