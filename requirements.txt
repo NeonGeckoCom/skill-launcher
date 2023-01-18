@@ -1,1 +1,1 @@
-neon-utils~=1.0
+neon-utils[network]~=1.0
