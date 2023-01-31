@@ -102,6 +102,7 @@ class TestSkillMethods(unittest.TestCase):
         neon_special_case = "neon"
         with_domain_word = "yahoo com"
         multi_word_no_tld = "neon gecko"
+        no_tld_with_dot = "duck duck go."
 
         self.assertEqual(self.skill._parse_url_from_website(valid_url),
                          valid_url)
@@ -115,6 +116,8 @@ class TestSkillMethods(unittest.TestCase):
                          "yahoo.com")
         self.assertEqual(self.skill._parse_url_from_website(multi_word_no_tld),
                          "neongecko.com")
+        self.assertEqual(self.skill._parse_url_from_website(no_tld_with_dot),
+                         "duckduckgo.com")
 
     def test_validate_url(self):
         valid_url = "https://neon.ai"
