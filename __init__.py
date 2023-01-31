@@ -148,8 +148,12 @@ class LauncherSkill(NeonSkill):
                                 for p in website.split()])
 
         if '.' in website:
-            LOG.debug(f"Returning: {website}")
-            return website.replace(' ', '')
+            if website.endswith('.'):
+                LOG.info("Website ends with '.', assume .com")
+                return f"{website.replace(' ', '')}com"
+            else:
+                LOG.debug(f"Returning: {website}")
+                return website.replace(' ', '')
 
         if len(website.split()) == 1:
             LOG.warning(f"No TLD in one-word website: {website}")
