@@ -27,13 +27,14 @@
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import difflib
-import re
 import webbrowser
 from typing import Optional
 
 import requests
 from adapt.intent import IntentBuilder
 from mycroft_bus_client import Message
+from ovos_utils import classproperty
+from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.log import LOG
 from ovos_utils.gui import is_gui_installed
 from neon_utils.message_utils import request_from_mobile
@@ -48,6 +49,18 @@ class LauncherSkill(NeonSkill):
         super(LauncherSkill, self).__init__(name="LauncherSkill")
         self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us',
                               'tech')
+
+    @classproperty
+    def runtime_requirements(self):
+        return RuntimeRequirements(network_before_load=False,
+                                   internet_before_load=False,
+                                   gui_before_load=False,
+                                   requires_internet=True,
+                                   requires_network=True,
+                                   requires_gui=True,
+                                   no_internet_fallback=False,
+                                   no_network_fallback=False,
+                                   no_gui_fallback=False)
 
     @intent_file_handler("launch_program.intent")
     def handle_launch_program(self, message):
