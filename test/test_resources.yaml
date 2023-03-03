@@ -18,6 +18,7 @@ dialog:
   - not_supported
   - on
   - website_not_found
+
 # regex entities, not necessarily filenames
 regex:
   - website
