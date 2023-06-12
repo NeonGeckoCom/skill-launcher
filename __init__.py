@@ -32,7 +32,7 @@ from typing import Optional
 
 import requests
 from adapt.intent import IntentBuilder
-from mycroft_bus_client import Message
+from ovos_bus_client import Message
 from ovos_utils import classproperty
 from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.log import LOG
