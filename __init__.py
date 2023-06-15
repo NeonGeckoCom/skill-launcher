@@ -46,7 +46,7 @@ from mycroft.skills import intent_handler, intent_file_handler
 
 class LauncherSkill(NeonSkill):
     def __init__(self, **kwargs):
-        LauncherSkill.__init__(**kwargs)
+        LauncherSkill.__init__(self, **kwargs)
         self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us',
                               'tech')
 
