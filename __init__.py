@@ -32,7 +32,7 @@ from typing import Optional
 
 import requests
 from adapt.intent import IntentBuilder
-from mycroft_bus_client import Message
+from ovos_bus_client import Message
 from ovos_utils import classproperty
 from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.log import LOG
@@ -45,8 +45,8 @@ from mycroft.skills import intent_handler, intent_file_handler
 
 
 class LauncherSkill(NeonSkill):
-    def __init__(self):
-        super(LauncherSkill, self).__init__(name="LauncherSkill")
+    def __init__(self, **kwargs):
+        NeonSkill.__init__(self, **kwargs)
         self.valid_domains = ('com', 'net', 'org', 'edu', 'gov', 'ai', 'us',
                               'tech')
 
@@ -212,7 +212,3 @@ class LauncherSkill(NeonSkill):
     def stop(self):
         if self.gui_enabled:
             self.gui.clear()
-
-
-def create_skill():
-    return LauncherSkill()
