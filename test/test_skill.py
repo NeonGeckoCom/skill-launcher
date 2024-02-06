@@ -25,55 +25,13 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE,  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import os.path
-import shutil
-import unittest
+
 import pytest
-import json
 
-from os import mkdir
-from os.path import dirname, join, exists
-from mock import Mock
-from mycroft_bus_client import Message
-from ovos_utils.messagebus import FakeBus
-
-from mycroft.skills.skill_loader import SkillLoader
+from neon_minerva.tests.skill_unit_test_base import SkillTestCase
 
 
-class TestSkillMethods(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        bus = FakeBus()
-        bus.run_in_thread()
-        skill_loader = SkillLoader(bus, dirname(dirname(__file__)))
-        skill_loader.load()
-        cls.skill = skill_loader.instance
-
-        # Define a directory to use for testing
-        cls.test_fs = join(dirname(__file__), "skill_fs")
-        if not exists(cls.test_fs):
-            mkdir(cls.test_fs)
-
-        # Override the fs paths to use the test directory
-        cls.skill.settings_write_path = cls.test_fs
-        cls.skill.file_system.path = cls.test_fs
-
-        # Override speak and speak_dialog to test passed arguments
-        cls.skill.speak = Mock()
-        cls.skill.speak_dialog = Mock()
-
-    def setUp(self):
-        self.skill.speak.reset_mock()
-        self.skill.speak_dialog.reset_mock()
-
-    def tearDown(self) -> None:
-        self.skill.bus.remove_all_listeners("neon.wake_words_state")
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        shutil.rmtree(cls.test_fs)
-
+class TestSkillMethods(SkillTestCase):
     def test_00_skill_init(self):
         # Test any parameters expected to be set in init or initialize methods
         from neon_utils.skills import NeonSkill
