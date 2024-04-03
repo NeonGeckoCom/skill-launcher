@@ -1,21 +1,20 @@
 # Changelog
 
-## [0.4.1a3](https://github.com/NeonGeckoCom/skill-launcher/tree/0.4.1a3) (2023-06-15)
+## [1.0.1a2](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.1a2) (2024-04-03)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/0.4.1a2...0.4.1a3)
-
-**Merged pull requests:**
-
-- Deprecate create\_skill method and Update \_\_init\_\_ for best practices [\#43](https://github.com/NeonGeckoCom/skill-launcher/pull/43) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.4.1a2](https://github.com/NeonGeckoCom/skill-launcher/tree/0.4.1a2) (2023-06-14)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/0.4.0...0.4.1a2)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.1a1...1.0.1a2)
 
 **Merged pull requests:**
 
-- Update GH automation to best practices [\#42](https://github.com/NeonGeckoCom/skill-launcher/pull/42) ([NeonDaniel](https://github.com/NeonDaniel))
-- Refactor mycroft-messagebus-client to ovos-bus-client [\#40](https://github.com/NeonGeckoCom/skill-launcher/pull/40) ([NeonDaniel](https://github.com/NeonDaniel))
+- Update test dependency to stable version [\#46](https://github.com/NeonGeckoCom/skill-launcher/pull/46) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.0.1a1](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.1a1) (2024-02-06)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.0...1.0.1a1)
+
+**Merged pull requests:**
+
+- Support ovos-utils 0.1 [\#45](https://github.com/NeonGeckoCom/skill-launcher/pull/45) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
