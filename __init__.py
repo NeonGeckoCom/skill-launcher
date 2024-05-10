@@ -40,8 +40,7 @@ from ovos_utils.gui import is_gui_installed
 from neon_utils.message_utils import request_from_mobile
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.web_utils import scrape_page_for_links as scrape
-
-from mycroft.skills import intent_handler, intent_file_handler
+from ovos_workshop.skills.decorators import intent_handler
 
 
 class LauncherSkill(NeonSkill):
@@ -62,7 +61,7 @@ class LauncherSkill(NeonSkill):
                                    no_network_fallback=False,
                                    no_gui_fallback=False)
 
-    @intent_file_handler("launch_program.intent")
+    @intent_handler("launch_program.intent")
     def handle_launch_program(self, message):
         """
         Handle a request to launch a specific program
