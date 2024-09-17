@@ -31,7 +31,6 @@ import webbrowser
 from typing import Optional
 
 import requests
-from adapt.intent import IntentBuilder
 from ovos_bus_client import Message
 from ovos_utils import classproperty
 from ovos_utils.process_utils import RuntimeRequirements
@@ -41,6 +40,7 @@ from neon_utils.message_utils import request_from_mobile
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.web_utils import scrape_page_for_links as scrape
 from ovos_workshop.decorators import intent_handler
+from ovos_workshop.intents import IntentBuilder
 
 
 class LauncherSkill(NeonSkill):
