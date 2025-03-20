@@ -28,14 +28,14 @@
 
 import difflib
 import webbrowser
-from typing import Optional
-
 import requests
+
+from typing import Optional, Tuple
 from ovos_bus_client import Message
 from ovos_utils import classproperty
 from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.log import LOG
-from ovos_utils.gui import is_gui_installed
+from ovos_utils.gui import is_gui_connected
 from neon_utils.message_utils import request_from_mobile
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.web_utils import scrape_page_for_links as scrape
@@ -126,12 +126,12 @@ class LauncherSkill(NeonSkill):
                                   {"event": "navigate to page",
                                    "data": [website, message.context[
                                        "klat_data"]["request_id"]]}))
-        elif self.gui_enabled or is_gui_installed():
+        elif is_gui_connected(self.bus):
             self.gui.show_url(website)
         else:
             webbrowser.open_new(website)
 
-    def _parse_page_in_request(self, website: str) -> (Optional[str], str):
+    def _parse_page_in_request(self, website: str) -> Tuple[Optional[str], str]:
         """
         Split a requested page from a website request.
         :param website: Parsed website request from user
@@ -209,5 +209,4 @@ class LauncherSkill(NeonSkill):
         LOG.error(f"Could not resolve a valid URL: {url}")
 
     def stop(self):
-        if self.gui_enabled:
-            self.gui.clear()
+        self.gui.clear()
