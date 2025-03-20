@@ -1,6 +1,6 @@
 # NEON AI (TM) SOFTWARE, Software Development Kit & Application Framework
 # All trademark and other rights reserved by their respective owners
-# Copyright 2008-2022 Neongecko.com Inc.
+# Copyright 2008-2025 Neongecko.com Inc.
 # Contributors: Daniel McKnight, Guy Daniels, Elon Gasper, Richard Leeds,
 # Regina Bloomstine, Casimiro Ferreira, Andrii Pernatii, Kirill Hrymailo
 # BSD-3 License
@@ -28,20 +28,19 @@
 
 import difflib
 import webbrowser
-from typing import Optional
-
 import requests
-from adapt.intent import IntentBuilder
+
+from typing import Optional, Tuple
 from ovos_bus_client import Message
 from ovos_utils import classproperty
 from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.log import LOG
-from ovos_utils.gui import is_gui_installed
+from ovos_utils.gui import is_gui_connected
 from neon_utils.message_utils import request_from_mobile
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.web_utils import scrape_page_for_links as scrape
-
-from mycroft.skills import intent_handler, intent_file_handler
+from ovos_workshop.decorators import intent_handler
+from ovos_workshop.intents import IntentBuilder
 
 
 class LauncherSkill(NeonSkill):
@@ -62,7 +61,7 @@ class LauncherSkill(NeonSkill):
                                    no_network_fallback=False,
                                    no_gui_fallback=False)
 
-    @intent_file_handler("launch_program.intent")
+    @intent_handler("launch_program.intent")
     def handle_launch_program(self, message):
         """
         Handle a request to launch a specific program
@@ -127,12 +126,12 @@ class LauncherSkill(NeonSkill):
                                   {"event": "navigate to page",
                                    "data": [website, message.context[
                                        "klat_data"]["request_id"]]}))
-        elif self.gui_enabled or is_gui_installed():
+        elif is_gui_connected(self.bus):
             self.gui.show_url(website)
         else:
             webbrowser.open_new(website)
 
-    def _parse_page_in_request(self, website: str) -> (Optional[str], str):
+    def _parse_page_in_request(self, website: str) -> Tuple[Optional[str], str]:
         """
         Split a requested page from a website request.
         :param website: Parsed website request from user
@@ -210,5 +209,4 @@ class LauncherSkill(NeonSkill):
         LOG.error(f"Could not resolve a valid URL: {url}")
 
     def stop(self):
-        if self.gui_enabled:
-            self.gui.clear()
+        self.gui.clear()

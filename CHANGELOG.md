@@ -1,20 +1,36 @@
 # Changelog
 
-## [1.0.1a2](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.1a2) (2024-04-03)
+## [1.0.2a4](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.2a4) (2025-03-20)
 
-[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.1a1...1.0.1a2)
-
-**Merged pull requests:**
-
-- Update test dependency to stable version [\#46](https://github.com/NeonGeckoCom/skill-launcher/pull/46) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [1.0.1a1](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.1a1) (2024-02-06)
-
-[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.0...1.0.1a1)
+[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.2a3...1.0.2a4)
 
 **Merged pull requests:**
 
-- Support ovos-utils 0.1 [\#45](https://github.com/NeonGeckoCom/skill-launcher/pull/45) ([NeonDaniel](https://github.com/NeonDaniel))
+- Refactor to resolve deprecation warnings [\#52](https://github.com/NeonGeckoCom/skill-launcher/pull/52) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.0.2a3](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.2a3) (2025-03-11)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.2a2...1.0.2a3)
+
+**Merged pull requests:**
+
+- Update automation, gitignore, and license notices [\#51](https://github.com/NeonGeckoCom/skill-launcher/pull/51) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.0.2a2](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.2a2) (2024-09-17)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.2a1...1.0.2a2)
+
+**Merged pull requests:**
+
+- Update dependencies to allow for latest OVOS packages [\#50](https://github.com/NeonGeckoCom/skill-launcher/pull/50) ([NeonDaniel](https://github.com/NeonDaniel))
+
+## [1.0.2a1](https://github.com/NeonGeckoCom/skill-launcher/tree/1.0.2a1) (2024-05-10)
+
+[Full Changelog](https://github.com/NeonGeckoCom/skill-launcher/compare/1.0.1...1.0.2a1)
+
+**Merged pull requests:**
+
+- Remove `mycroft` imports [\#49](https://github.com/NeonGeckoCom/skill-launcher/pull/49) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
