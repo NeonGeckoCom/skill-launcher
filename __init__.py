@@ -90,7 +90,10 @@ class LauncherSkill(NeonSkill):
         """
         Handle a request to launch a specific program
         """
+        LOG.warning(f"TEMP-DEBUG handle_launch_program context: "
+                   f"{message.context}")
         if not self.neon_in_request(message):
+            LOG.warning("TEMP-DEBUG neon_in_request returned False, bailing")
             return
         if message.context.get("node"):
             self._handle_launch_node_program(message)
