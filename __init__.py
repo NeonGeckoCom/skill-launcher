@@ -37,10 +37,34 @@ from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.log import LOG
 from ovos_utils.gui import is_gui_connected
 from neon_utils.message_utils import request_from_mobile
+from neon_utils.native_actions import invoke_native_action
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.web_utils import scrape_page_for_links as scrape
+from neon_data_models.enum import NodeNativeAction
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.intents import IntentBuilder
+
+# Free-text `program` slot to `NodeNativeAction`, bare-launch only (no
+# content). "messages"/"mail" here are for the empty-composer case; a
+# content-bearing "text X that Y" is handled by skill-messaging, not here.
+PROGRAM_TO_NATIVE_ACTION = {
+    "camera": NodeNativeAction.LAUNCH_CAMERA_APP,
+    "voice recorder": NodeNativeAction.LAUNCH_VOICE_RECORDER_APP,
+    "voice memo": NodeNativeAction.LAUNCH_VOICE_RECORDER_APP,
+    "voice memos": NodeNativeAction.LAUNCH_VOICE_RECORDER_APP,
+    "recorder": NodeNativeAction.LAUNCH_VOICE_RECORDER_APP,
+    "reminders": NodeNativeAction.LAUNCH_REMINDERS_APP,
+    "clock": NodeNativeAction.LAUNCH_CLOCK_APP,
+    "alarm": NodeNativeAction.LAUNCH_CLOCK_APP,
+    "alarms": NodeNativeAction.LAUNCH_CLOCK_APP,
+    "timer": NodeNativeAction.LAUNCH_CLOCK_APP,
+    "timers": NodeNativeAction.LAUNCH_CLOCK_APP,
+    "messages": NodeNativeAction.LAUNCH_SMS_APP,
+    "texts": NodeNativeAction.LAUNCH_SMS_APP,
+    "text messages": NodeNativeAction.LAUNCH_SMS_APP,
+    "mail": NodeNativeAction.LAUNCH_EMAIL_APP,
+    "email": NodeNativeAction.LAUNCH_EMAIL_APP,
+}
 
 
 class LauncherSkill(NeonSkill):
@@ -68,7 +92,9 @@ class LauncherSkill(NeonSkill):
         """
         if not self.neon_in_request(message):
             return
-        if message.context.get("mobile"):
+        if message.context.get("node"):
+            self._handle_launch_node_program(message)
+        elif message.context.get("mobile"):
             self.speak_dialog("mobile_not_supported", private=True)
         elif message.context.get('klat_data'):
             pass
@@ -77,6 +103,20 @@ class LauncherSkill(NeonSkill):
             program = message.data.get('program')
             LOG.debug(program)
             self.speak_dialog("not_supported", private=True)
+
+    def _handle_launch_node_program(self, message):
+        """
+        Map the free-text `program` slot to a `NodeNativeAction` and
+        dispatch a bare launch (no params) via the shared neon-utils
+        helper. Unmapped programs fall through to `not_supported`.
+        """
+        program = (message.data.get("program") or "").strip().lower()
+        action = PROGRAM_TO_NATIVE_ACTION.get(program)
+        if not action:
+            LOG.debug(f"No NodeNativeAction mapped for program: {program}")
+            self.speak_dialog("not_supported", private=True)
+            return
+        invoke_native_action(self, message, action)
 
     @intent_handler(IntentBuilder("BrowseWebsiteIntent")
                     .require("browse").require("website").build())

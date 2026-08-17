@@ -28,7 +28,43 @@
 
 import pytest
 
+from threading import Timer
+from ovos_bus_client import Message
 from neon_minerva.tests.skill_unit_test_base import SkillTestCase
+
+
+def _node_message(program: str, action_supported: bool = True,
+                  action_key: str = "launch_camera_app",
+                  session_id: str = "node-test-1"):
+    return Message("launch_program.intent", {"program": program}, {
+        "node": {
+            "node_id": "node-test-1",
+            "node_name": "Test Node",
+            "capabilities": {action_key: action_supported}
+        },
+        "session": {"session_id": session_id}
+    })
+
+
+def _response(action="launch_camera_app", status="success", error=None,
+             session_id="node-test-1"):
+    data = {"action": action, "status": status}
+    if error:
+        data["error"] = error
+    return Message("node.invoke_native.response", data,
+                   {"session": {"session_id": session_id}})
+
+
+def _arm_node_reply(bus, response_message):
+    """
+    `FakeBus.emit` runs handlers synchronously, so replying to
+    `node.invoke_native` from inside its own handler would emit the
+    response before the helper's `wait_for_message` has subscribed. Reply
+    from a short delay instead, after the handler's call stack unwinds.
+    """
+    def _reply(_m):
+        Timer(0.05, lambda: bus.emit(response_message)).start()
+    bus.once("node.invoke_native", _reply)
 
 
 class TestSkillMethods(SkillTestCase):
@@ -40,6 +76,87 @@ class TestSkillMethods(SkillTestCase):
     def test_launch_program_intent(self):
         # TODO
         pass
+
+    def test_launch_node_program_supported_emits_invoke_native(self):
+        message = _node_message("camera")
+        emitted = []
+        self.skill.bus.once("node.invoke_native",
+                            lambda m: emitted.append(m))
+        _arm_node_reply(self.skill.bus, _response(status="success"))
+
+        self.skill.handle_launch_program(message)
+
+        self.assertEqual(len(emitted), 1)
+        self.assertEqual(emitted[0].data["action"], "launch_camera_app")
+        self.assertEqual(emitted[0].data["params"], {})
+
+    def test_launch_node_program_unsupported_capability(self):
+        # skill-launcher ships native_action_*.dialog files, so the
+        # neon-utils helper prefers speak_dialog over its plain-text fallback.
+        message = _node_message("camera", action_supported=False)
+
+        self.skill.handle_launch_program(message)
+
+        self.skill.speak.assert_not_called()
+        self.skill.speak_dialog.assert_called_once_with(
+            "native_action_not_supported",
+            {"action": "launch_camera_app",
+             "description": "the camera app"},
+            message=message)
+
+    def test_launch_node_program_unmapped_program_not_supported(self):
+        message = _node_message("some unknown program")
+
+        self.skill.handle_launch_program(message)
+
+        self.skill.speak_dialog.assert_called_once_with(
+            "not_supported", private=True)
+
+    def test_launch_node_program_maps_alarm_to_clock_action(self):
+        message = _node_message("alarm", action_key="launch_clock_app")
+        emitted = []
+        self.skill.bus.once("node.invoke_native",
+                            lambda m: emitted.append(m))
+        _arm_node_reply(self.skill.bus,
+                       _response(action="launch_clock_app", status="success"))
+
+        self.skill.handle_launch_program(message)
+
+        self.assertEqual(emitted[0].data["action"], "launch_clock_app")
+        self.skill.speak.assert_not_called()  # confirm_on_success defaults off
+        self.skill.speak_dialog.assert_not_called()
+
+    def test_launch_node_program_maps_messages_to_sms_bare_launch(self):
+        message = _node_message("messages", action_key="launch_sms_app")
+        emitted = []
+        self.skill.bus.once("node.invoke_native",
+                            lambda m: emitted.append(m))
+        _arm_node_reply(self.skill.bus,
+                       _response(action="launch_sms_app", status="success"))
+
+        self.skill.handle_launch_program(message)
+
+        self.assertEqual(emitted[0].data["action"], "launch_sms_app")
+        self.assertEqual(emitted[0].data["params"], {})
+        self.skill.speak.assert_not_called()
+        self.skill.speak_dialog.assert_not_called()
+
+    def test_launch_node_program_full_mapping_table(self):
+        from skill_launcher import PROGRAM_TO_NATIVE_ACTION
+
+        for program, action in PROGRAM_TO_NATIVE_ACTION.items():
+            with self.subTest(program=program):
+                message = _node_message(program, action_key=action.value)
+                emitted = []
+                self.skill.bus.once("node.invoke_native",
+                                    lambda m: emitted.append(m))
+                _arm_node_reply(self.skill.bus,
+                               _response(action=action.value,
+                                        status="success"))
+
+                self.skill.handle_launch_program(message)
+
+                self.assertEqual(emitted[0].data["action"], action.value)
 
     def test_browse_website_intent(self):
         # TODO
