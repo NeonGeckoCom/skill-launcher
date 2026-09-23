@@ -8,6 +8,12 @@ languages:
 vocab:
   - browse
   - launch
+  - launch_camera_app
+  - launch_voice_recorder_app
+  - launch_reminders_app
+  - launch_clock_app
+  - launch_sms_app
+  - launch_email_app
 
 # dialog is .dialog file basenames (case-sensitive)
 dialog:
@@ -18,6 +24,16 @@ dialog:
   - "not_supported"
   - "on"
   - "website_not_found"
+  - "native_action_not_supported"
+  - "native_action_success"
+  - "native_action_timeout"
+  - "native_action_error"
+  - "launch_camera_app"
+  - "launch_voice_recorder_app"
+  - "launch_reminders_app"
+  - "launch_clock_app"
+  - "launch_sms_app"
+  - "launch_email_app"
 
 # regex entities, not necessarily filenames
 regex:

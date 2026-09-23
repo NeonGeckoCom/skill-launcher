@@ -37,8 +37,10 @@ from ovos_utils.process_utils import RuntimeRequirements
 from ovos_utils.log import LOG
 from ovos_utils.gui import is_gui_connected
 from neon_utils.message_utils import request_from_mobile
+from neon_utils.native_actions import invoke_native_action
 from neon_utils.skills.neon_skill import NeonSkill
 from neon_utils.web_utils import scrape_page_for_links as scrape
+from neon_data_models.enum import NodeNativeAction
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.intents import IntentBuilder
 
@@ -68,7 +70,9 @@ class LauncherSkill(NeonSkill):
         """
         if not self.neon_in_request(message):
             return
-        if message.context.get("mobile"):
+        if message.context.get("node"):
+            self._handle_launch_node_program(message)
+        elif message.context.get("mobile"):
             self.speak_dialog("mobile_not_supported", private=True)
         elif message.context.get('klat_data'):
             pass
@@ -77,6 +81,33 @@ class LauncherSkill(NeonSkill):
             program = message.data.get('program')
             LOG.debug(program)
             self.speak_dialog("not_supported", private=True)
+
+    def _handle_launch_node_program(self, message):
+        """
+        Resolve the free-text `program` slot to a `NodeNativeAction` and
+        dispatch a bare launch (no params) via the shared neon-utils
+        helper. Unmatched programs fall through to `not_supported`.
+        """
+        program = (message.data.get("program") or "").strip().lower()
+        action = self._native_action_for(program)
+        if not action:
+            LOG.debug(f"No NodeNativeAction vocab matched program: {program}")
+            self.speak_dialog("not_supported", private=True)
+            return
+        invoke_native_action(self, message, action)
+
+    def _native_action_for(self, program: str) -> Optional[NodeNativeAction]:
+        """
+        Each `NodeNativeAction` value names a `.voc` file listing the spoken
+        program names it fronts, e.g. `launch_clock_app.voc` holds clock,
+        alarm and timer. Bare launch only: "messages"/"mail" here mean the
+        empty composer; a content-bearing "text X that Y" belongs to
+        skill-messaging.
+        """
+        for action in NodeNativeAction:
+            if self.voc_match(program, action.value):
+                return action
+        return None
 
     @intent_handler(IntentBuilder("BrowseWebsiteIntent")
                     .require("browse").require("website").build())
